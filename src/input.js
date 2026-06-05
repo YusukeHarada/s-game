@@ -4,6 +4,7 @@ export class InputManager {
     this.active = false;
     this.rawX = 0;
     this.rawY = 0;
+    this.bombPressed = false;
     this.canvasRect = canvas.getBoundingClientRect();
     this.scaleX = 1;
     this.scaleY = 1;
@@ -39,6 +40,7 @@ export class InputManager {
     const p = this._toCanvas(t.clientX, t.clientY);
     this.rawX = p.x;
     this.rawY = p.y;
+    if (e.touches.length >= 2) this.bombPressed = true;
   }
 
   _onTouchMove(e) {

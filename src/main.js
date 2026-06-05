@@ -165,10 +165,7 @@ class Game {
     }
     if (this.shootSoundTimer > 0) this.shootSoundTimer--;
 
-    if (this.input.getPointer().active && this.player.bombReady) {
-      // double-tap detection would be complex; use bomb on score > 0 approach
-      // Bomb triggered via placeholder — real games use button; skip for now
-    }
+    this._tryBomb(this.enemies, null);
 
     for (const e of this.enemies) e.update(this.player.x, this.player.y, this.enemyBulletPool);
     this.playerBulletPool.updateAll();
@@ -191,6 +188,8 @@ class Game {
       if (this.shootSoundTimer <= 0) { this.audio.play('shoot'); this.shootSoundTimer = 6; }
     }
     if (this.shootSoundTimer > 0) this.shootSoundTimer--;
+
+    this._tryBomb([], this.boss);
 
     this.boss.update(this.player.x, this.player.y, this.enemyBulletPool, this.audio);
     this.playerBulletPool.updateAll();
@@ -262,6 +261,22 @@ class Game {
         this.enemies.push(e);
       }
     }
+  }
+
+  _tryBomb(enemies, boss) {
+    if (!this.input.bombPressed || !this.player.bombReady) return;
+    this.input.bombPressed = false;
+    this.player.bombReady = false;
+    this.player.useBomb(this.enemyBulletPool, enemies, boss);
+    this.audio.play('explosionLarge');
+    this.renderer.triggerFlash();
+    for (const e of enemies) {
+      if (e.dead) {
+        this.player.score += e.points;
+        if (Math.random() < e.dropChance) this.itemManager.spawnRandom(e.x, e.y);
+      }
+    }
+    this.enemies = enemies.filter(e => !e.dead);
   }
 
   _collidePlayerBulletsEnemies() {

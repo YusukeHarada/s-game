@@ -86,12 +86,7 @@ export class Renderer {
     }
 
     this._drawPowerBar(ctx, player);
-    if (player.bombReady) {
-      ctx.fillStyle = '#ff4400';
-      ctx.font = '12px monospace';
-      ctx.textAlign = 'left';
-      ctx.fillText('BOMB READY', 10, CANVAS_H - 10);
-    }
+    this._drawBombButton(ctx, player, frame);
 
     if (boss && !boss.entering) {
       this._drawBossBar(ctx, boss, frame);
@@ -122,6 +117,41 @@ export class Renderer {
         ctx.fillStyle = '#00ffff';
         ctx.fillRect(bx + 31 + i * 16, by - 11, 10, 10);
       }
+    }
+  }
+
+  _drawBombButton(ctx, player, frame) {
+    const bx = CANVAS_W - 70, by = CANVAS_H - 50;
+    const w = 60, h = 40;
+    if (player.bombReady) {
+      const pulse = 0.6 + 0.4 * Math.abs(Math.sin(frame * 0.1));
+      ctx.globalAlpha = pulse;
+      ctx.shadowBlur = 14;
+      ctx.shadowColor = '#ff4400';
+      ctx.strokeStyle = '#ff4400';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(bx, by, w, h);
+      ctx.fillStyle = 'rgba(255,68,0,0.2)';
+      ctx.fillRect(bx, by, w, h);
+      ctx.fillStyle = '#ff6622';
+      ctx.font = 'bold 14px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('BOMB', bx + w / 2, by + 15);
+      ctx.font = '10px monospace';
+      ctx.fillStyle = '#ffaa88';
+      ctx.fillText('2-finger', bx + w / 2, by + 30);
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
+    } else {
+      ctx.globalAlpha = 0.3;
+      ctx.strokeStyle = '#555555';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(bx, by, w, h);
+      ctx.fillStyle = '#555555';
+      ctx.font = 'bold 14px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('BOMB', bx + w / 2, by + 15);
+      ctx.globalAlpha = 1;
     }
   }
 

@@ -1,4 +1,4 @@
-import { CANVAS_W, CANVAS_H, BULLET_SPEED_PLAYER, MAX_OPTIONS, TOUCH_Y_OFFSET, POS_HISTORY_MAX, clamp, lerp } from './utils.js';
+import { CANVAS_W, CANVAS_H, BULLET_SPEED_PLAYER, MAX_OPTIONS, POS_HISTORY_MAX, clamp, lerp } from './utils.js';
 import { Option } from './option.js';
 
 const FIRE_COOLDOWNS = [20, 16, 12, 10, 8, 7];
@@ -20,6 +20,9 @@ export class Player {
     this.dead = false;
     this.active = true;
     this.bombReady = false;
+    this._wasActive = false;
+    this._touchOffsetX = 0;
+    this._touchOffsetY = 0;
   }
 
   get invincible() { return this.shieldTimer > 0; }
@@ -27,15 +30,23 @@ export class Player {
 
   update(input) {
     const ptr = input.getPointer();
+    const justStarted = ptr.active && !this._wasActive;
+    this._wasActive = ptr.active;
+
     if (ptr.active) {
-      const tx = ptr.x;
-      const ty = ptr.y + TOUCH_Y_OFFSET;
-      const t = 0.18 + this.speedBonus * 0.04;
+      if (justStarted) {
+        // Compute offset so ship stays at current position — no jump on touch start
+        this._touchOffsetX = this.x - ptr.x;
+        this._touchOffsetY = this.y - ptr.y;
+      }
+      const tx = ptr.x + this._touchOffsetX;
+      const ty = ptr.y + this._touchOffsetY;
+      const t = 0.35 + this.speedBonus * 0.06;
       this.x = lerp(this.x, tx, t);
       this.y = lerp(this.y, ty, t);
     }
     this.x = clamp(this.x, this.w / 2, CANVAS_W - this.w / 2);
-    this.y = clamp(this.y, CANVAS_H * 0.3, CANVAS_H - this.h / 2);
+    this.y = clamp(this.y, this.h / 2, CANVAS_H - this.h / 2);
 
     if (this.shieldTimer > 0) this.shieldTimer--;
     this.fireTimer--;

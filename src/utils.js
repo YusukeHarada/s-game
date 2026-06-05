@@ -6,7 +6,6 @@ export const BULLET_SPEED_PLAYER = 11;
 export const BULLET_SPEED_ENEMY = 4;
 export const MAX_OPTIONS = 4;
 export const ITEM_RADIUS = 14;
-export const TOUCH_Y_OFFSET = -60;
 export const POS_HISTORY_MAX = 120;
 export const OPTION_TRAIL_GAP = 20;
 
